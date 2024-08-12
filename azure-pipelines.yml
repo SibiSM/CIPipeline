@@ -1,0 +1,56 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  dockerRegistryServiceConnection: 'b2ce27f2-05ba-446c-822b-1d2355ef6f72'
+  imageRepository: 'projectsibi'
+  containerRegistry: 'project8sibi.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: TestAndBuild
+  displayName: Run Tests and Build Docker Image
+  jobs:
+  - job: RunTests
+    displayName: Run Unit Tests and Collect Coverage
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - script: |
+        npm install
+        npm test -- --coverage
+      displayName: 'Run Unit Tests and Generate Coverage'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '**/test-results.xml'  # Adjust path based on where jest-junit outputs
+        testRunTitle: 'Unit Tests Results'
+      displayName: 'Publish Test Results'
+
+    - task: PublishCodeCoverageResults@2
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: 'coverage/cobertura-coverage.xml'
+        reportDirectory: 'coverage'
+      displayName: 'Publish Code Coverage Results'
+
+  - job: BuildAndPushDockerImage
+    displayName: Build and Push Docker Image
+    dependsOn: RunTests
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)

@@ -1,0 +1,26 @@
+{
+  "name": "project8sibi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "build": "echo 'Build script not defined'",
+    "start": "node app.js",
+    "test": "jest",
+    "coverage": "jest --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "supertest": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.25.3",
+    "babel-jest": "^29.7.0",
+    "chai": "^5.1.1",
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "supertest": "^7.0.0"
+  }
+}
